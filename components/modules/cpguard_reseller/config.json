@@ -1,0 +1,37 @@
+{
+    "version": "1.0.0",
+    "name": "CpguardReseller.name",
+    "description": "CpguardReseller.description",
+    "authors": [
+        {
+            "name": "OPSSHIELD LLP",
+            "url": "https://opsshield.com"
+        }
+    ],
+    "module": {
+        "row": "CpguardReseller.account",
+        "rows": "CpguardReseller.accounts",
+        "row_key": "account_name",
+        "group": "CpguardReseller.account_group"
+    },
+    "service": {
+        "name_key": "cpguard_service_id"
+    },
+    "email_tags": {
+        "module": [
+            "account_name"
+        ],
+        "package": [
+            "cpguard_pricing_id"
+        ],
+        "service": [
+            "cpguard_license_key",
+            "cpguard_service_id",
+            "cpguard_client_email",
+            "cpguard_invite_link",
+            "cpguard_apply_command",
+            "cpguard_key_changed"
+        ]
+    },
+    "logo": "views/default/images/logo.svg"
+}

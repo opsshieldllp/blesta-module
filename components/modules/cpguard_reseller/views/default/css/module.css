@@ -1,0 +1,45 @@
+.cpguard-module {
+    --cpg-space: 8px;
+    --cpg-border: #a8a8a8;
+    --cpg-radius: 4px;
+    color: inherit;
+    font: inherit;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.cpguard-module.pad { padding: calc(var(--cpg-space) * 3); }
+.cpguard-module p { margin: 0 0 calc(var(--cpg-space) * 2); }
+.cpguard-module .form-group { margin: 0 0 calc(var(--cpg-space) * 2); }
+.cpguard-module label { display: block; margin-bottom: var(--cpg-space); font-weight: 600; }
+.cpguard-module input[type="text"],
+.cpguard-module input[type="password"] {
+    box-sizing: border-box;
+    width: 100%;
+    max-width: 34rem;
+    min-height: 40px;
+    padding: var(--cpg-space) calc(var(--cpg-space) * 1.5);
+    border: 1px solid var(--cpg-border);
+    border-radius: var(--cpg-radius);
+    font: inherit;
+}
+.cpguard-module input:focus-visible,
+.cpguard-module a:focus-visible {
+    outline: 2px solid #014965;
+    outline-offset: 2px;
+}
+.cpguard-module .btn { min-height: 40px; box-sizing: border-box; }
+.cpguard-module .text-muted { margin-top: var(--cpg-space); }
+.cpguard-module .table-responsive { overflow-x: auto; }
+.cpguard-module table { width: 100%; }
+.cpguard-module th { text-align: left; }
+.cpguard-module td, .cpguard-module th { padding: calc(var(--cpg-space) * 1.5); vertical-align: top; }
+.cpguard-module td { font-variant-numeric: tabular-nums; }
+.cpguard-module dl { margin: 0 0 calc(var(--cpg-space) * 3); }
+.cpguard-module dt { margin-top: var(--cpg-space); font-weight: 600; }
+.cpguard-module dd { margin: 0 0 calc(var(--cpg-space) * 2); }
+.cpguard-module pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+.cpguard-module form + form { margin-top: calc(var(--cpg-space) * 2); }
+@media (max-width: 600px) {
+    .cpguard-module.pad { padding: calc(var(--cpg-space) * 2); }
+    .cpguard-module .btn { min-height: 44px; }
+}

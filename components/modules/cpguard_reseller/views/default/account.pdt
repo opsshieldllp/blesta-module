@@ -1,0 +1,25 @@
+<?php
+$this->Widget->clear();
+$this->Form->create(null, ['class' => 'disable-on-submit']);
+$this->Widget->create($this->_($editing ? 'CpguardReseller.edit_account' : 'CpguardReseller.add_account', true));
+?>
+<link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css'); ?>">
+<div class="cpguard-module pad">
+<p><?php $this->_('CpguardReseller.account_help'); ?></p>
+<div class="form-group">
+    <?php $this->Form->label($this->_('CpguardReseller.account_name', true), 'account_name'); ?>
+    <?php $this->Form->fieldText('account_name', $vars->account_name ?? '', ['id' => 'account_name', 'class' => 'form-control', 'required' => 'required']); ?>
+</div>
+<div class="form-group">
+    <?php $this->Form->label($this->_('CpguardReseller.api_key', true), 'api_key'); ?>
+    <?php $this->Form->fieldPassword('api_key', ['id' => 'api_key', 'class' => 'form-control', 'autocomplete' => 'new-password']); ?>
+    <?php if ($editing) { ?><p class="text-muted"><?php $this->_('CpguardReseller.key_help'); ?></p><?php } ?>
+</div>
+<?php
+$this->Form->fieldSubmit('save', $this->_('CpguardReseller.save', true), ['class' => 'btn btn-primary']);
+?>
+</div>
+<?php
+$this->Widget->end();
+$this->Form->end();
+?>

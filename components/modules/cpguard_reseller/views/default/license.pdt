@@ -1,0 +1,63 @@
+<link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css'); ?>">
+<div class="cpguard-module pad">
+<?php if ($error !== '') { ?>
+<div class="alert alert-danger"><?php echo $this->Html->safe($error); ?></div>
+<?php } ?>
+<?php if ($notice !== '') { ?>
+<div class="alert alert-success" role="status"><?php echo $this->Html->safe($notice); ?></div>
+<?php } ?>
+<?php if (($fields->cpguard_key_changed ?? '') === 'true') { ?>
+<div class="alert alert-info"><?php $this->_('CpguardReseller.key_changed'); ?></div>
+<?php } ?>
+<?php
+$display = [
+    'license_key' => $details['license_key'] ?? $fields->cpguard_license_key ?? '',
+    'status' => $details['status'] ?? '',
+    'package' => $details['package_name'] ?? '',
+    'ips' => implode(', ', $details['ips'] ?? []),
+    'hostnames' => implode(', ', $details['domains'] ?? []),
+    'renewal' => $details['date_renews'] ?? ''
+];
+?>
+<dl>
+    <?php foreach ($display as $label => $value) { if ($value === '') { continue; } ?>
+    <dt><?php $this->_('CpguardReseller.' . $label); ?></dt>
+    <dd><?php echo $this->Html->safe($value); ?></dd>
+    <?php } ?>
+</dl>
+<?php if (!empty($display['license_key'])) { ?>
+<h4><?php $this->_('CpguardReseller.install'); ?></h4>
+<p><?php $this->_('CpguardReseller.install_help'); ?></p>
+<?php
+$key = escapeshellarg($display['license_key']);
+$install = 'cd /usr/local/src && curl -fSL https://downloads.opsshield.com/cpguard/cpguard_install.sh -o cpguard_install.sh && bash cpguard_install.sh ' . $key;
+?>
+<pre><code><?php echo $this->Html->safe($install); ?></code></pre>
+<h4><?php $this->_('CpguardReseller.apply'); ?></h4>
+<pre><code><?php echo $this->Html->safe('cpgcli license --key ' . $key); ?></code></pre>
+<p><a class="btn btn-default" href="https://app.opsshield.com/" target="_blank" rel="noopener noreferrer"><?php $this->_('CpguardReseller.portal'); ?></a></p>
+<?php } ?>
+<?php if ($invite !== '' && $service->status === 'active') { ?>
+<p><?php $this->_('CpguardReseller.invitation_help'); ?></p>
+<p><a class="btn btn-primary" href="<?php echo $this->Html->safe($invite); ?>" target="_blank" rel="noopener noreferrer"><?php $this->_('CpguardReseller.signup'); ?></a></p>
+<?php } ?>
+<?php if ($error === '' && $service->status === 'active' && ($details['status'] ?? '') === 'active') { ?>
+    <?php if (($details['reissue'] ?? null) === false) { ?>
+    <p><?php $this->_('CpguardReseller.reissue_help'); ?></p>
+    <?php
+    $this->Form->create(null, ['class' => 'disable-on-submit']);
+    $this->Form->fieldHidden('cpguard_action', 'reissue');
+    $this->Form->fieldSubmit('submit', $this->_('CpguardReseller.reissue', true), ['class' => 'btn btn-default']);
+    $this->Form->end();
+    ?>
+    <?php } elseif (($details['reissue'] ?? null) === true) { ?>
+    <p class="text-muted"><?php $this->_('CpguardReseller.reissue_pending'); ?></p>
+    <?php } ?>
+    <?php if (!$client) {
+    $this->Form->create(null, ['class' => 'disable-on-submit']);
+    $this->Form->fieldHidden('cpguard_action', 'invitation');
+    $this->Form->fieldSubmit('submit', $this->_('CpguardReseller.invitation', true), ['class' => 'btn btn-default']);
+    $this->Form->end();
+    } ?>
+<?php } ?>
+</div>

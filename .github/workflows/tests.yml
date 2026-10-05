@@ -1,0 +1,28 @@
+name: Module checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.2', '8.4']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: curl
+          coverage: none
+      - name: Syntax checks
+        run: find components tests -type f \( -name '*.php' -o -name '*.pdt' \) -print0 | xargs -0 -n1 php -l
+      - name: Offline contract checks
+        run: php tests/run.php
+      - name: Build installable archive
+        run: python3 scripts/build-release.py
+      - uses: actions/upload-artifact@v4
+        if: matrix.php == '8.2'
+        with:
+          name: cpguard-reseller-blesta
+          path: dist/*

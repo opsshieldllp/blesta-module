@@ -1,0 +1,8 @@
+<?php if (!empty($fields->cpguard_license_key)) { ?>
+<dl>
+    <dt><?php $this->_('CpguardReseller.license_key'); ?></dt>
+    <dd><code><?php echo $this->Html->safe($fields->cpguard_license_key); ?></code></dd>
+</dl>
+<?php } else { ?>
+<p><?php $this->_('CpguardReseller.pending'); ?></p>
+<?php } ?>
