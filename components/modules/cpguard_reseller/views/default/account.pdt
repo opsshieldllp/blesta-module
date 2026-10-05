@@ -12,12 +12,19 @@ $this->Widget->create($this->_($editing ? 'CpguardReseller.edit_account' : 'Cpgu
 </div>
 <div class="form-group">
     <?php $this->Form->label($this->_('CpguardReseller.api_key', true), 'api_key'); ?>
-    <?php $this->Form->fieldPassword('api_key', ['id' => 'api_key', 'class' => 'form-control', 'autocomplete' => 'new-password']); ?>
+    <?php
+    $keyAttributes = ['id' => 'api_key', 'class' => 'form-control', 'autocomplete' => 'new-password'];
+    if (!$editing) { $keyAttributes['required'] = 'required'; }
+    $this->Form->fieldPassword('api_key', $keyAttributes);
+    ?>
     <?php if ($editing) { ?><p class="text-muted"><?php $this->_('CpguardReseller.key_help'); ?></p><?php } ?>
 </div>
+<div class="cpguard-actions">
 <?php
 $this->Form->fieldSubmit('save', $this->_('CpguardReseller.save', true), ['class' => 'btn btn-primary']);
 ?>
+<a href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/'); ?>"><?php $this->_('CpguardReseller.back_modules'); ?></a>
+</div>
 </div>
 <?php
 $this->Widget->end();

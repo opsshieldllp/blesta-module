@@ -43,3 +43,13 @@
     .cpguard-module.pad { padding: calc(var(--cpg-space) * 2); }
     .cpguard-module .btn { min-height: 44px; }
 }
+
+.cpguard-module .cpguard-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
+.cpguard-module .cpguard-actions form { width: auto; margin: 0; padding: 0; }
+.cpguard-module .cpguard-actions a.btn { display: inline-flex; align-items: center; justify-content: center; }
+.cpguard-module .cpguard-amount { text-align: right; white-space: nowrap; }
+
+.cpguard-module .alert { margin-bottom: 16px; padding: 12px 16px; border: 1px solid; border-radius: 4px; }
+.cpguard-module .alert-danger { color: #842029; background: #f8d7da; border-color: #e5adb2; }
+.cpguard-module .alert-success { color: #0f5132; background: #d1e7dd; border-color: #a3cfbb; }
+.cpguard-module .alert-info { color: #084d61; background: #d9edf4; border-color: #9ccbd9; }

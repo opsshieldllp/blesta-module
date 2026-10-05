@@ -357,6 +357,9 @@ class CpguardReseller extends Module
         $error = '';
         $notice = '';
         $invite = CpguardResellerApi::invitationUrl($fields->cpguard_invite_link ?? '');
+        if (empty($fields->cpguard_service_id)) {
+            return $this->render('license', compact('fields', 'details', 'error', 'notice', 'invite', 'client', 'service'));
+        }
         try {
             $row = $this->serviceRow($service);
             $details = $this->license($row, $fields->cpguard_service_id ?? '');

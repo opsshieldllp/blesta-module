@@ -67,7 +67,7 @@ If a purchase request times out or returns an incomplete response, it may alread
 
 1. Hold further provisioning attempts for that pending service while investigating.
 2. Check the reseller portal for the license and invoice created for this customer. Do not immediately repeat the purchase or package-change request.
-3. If a new license already exists for an unprovisioned pending service, edit it as staff, enter the remote ID in **Recovery: existing OPSSHIELD service ID**, and save. Then activate manually from the staff interface, using that existing ID, rather than asking automation to create a new license.
+3. If a new license already exists for an unprovisioned pending service, open **Manage Service → Basic Options**, enter its remote ID in **Existing OPSSHIELD service ID**, and activate with **Use module** enabled. Blesta 5.10 displays the import field directly on the pending activation form. This links the existing active license without making another purchase. Where the service editor exposes **Recovery: existing OPSSHIELD service ID**, staff can also save the ID before activation.
 4. Recovery cannot replace an identity already attached to a provisioned service. If a package-change response was lost, reconcile the old/new upstream identities and local service fields before proceeding; do not repeat the destructive package change blindly.
 
 Only signed-in staff can enter an import or recovery ID. Automation can activate an already linked pending service using its saved identity. Client reissue actions use the service identity already stored by Blesta and ignore submitted service IDs. POST forms use Blesta's normal CSRF protection; the module does not disable it.

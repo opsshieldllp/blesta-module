@@ -15,7 +15,7 @@ $this->Widget->create($this->_('CpguardReseller.accounts', true));
 <table class="table table-striped">
     <thead><tr>
         <?php foreach (['account_name', 'balance', 'due', 'services', 'options'] as $heading) { ?>
-        <th><?php $this->_('CpguardReseller.' . $heading); ?></th>
+        <th<?php if (in_array($heading, ['balance', 'due'], true)) { echo ' class="cpguard-amount"'; } ?>><?php $this->_('CpguardReseller.' . $heading); ?></th>
         <?php } ?>
     </tr></thead>
     <tbody>
@@ -26,7 +26,7 @@ $this->Widget->create($this->_('CpguardReseller.accounts', true));
         <td colspan="3"><span class="text-danger"><?php echo $this->Html->safe($balance['connection_error']); ?></span></td>
         <?php } else { ?>
         <?php foreach (['credit', 'due'] as $kind) { ?>
-        <td><?php foreach (($balance[$kind] ?? []) as $currency => $amount) { ?>
+        <td class="cpguard-amount"><?php foreach (($balance[$kind] ?? []) as $currency => $amount) { ?>
             <div><?php echo $this->Html->safe($amount . ' ' . $currency); ?></div>
         <?php } ?></td>
         <?php } ?>
@@ -35,14 +35,17 @@ $this->Widget->create($this->_('CpguardReseller.accounts', true));
         <?php } ?></td>
         <?php } ?>
         <td>
+            <div class="cpguard-actions">
             <a class="btn btn-default btn-sm" href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/editrow/' . $module->id . '/' . $row->id . '/'); ?>"><?php $this->_('CpguardReseller.edit'); ?></a>
             <?php
-            $this->Form->create($this->base_uri . 'settings/company/modules/deleterow/', ['class' => 'disable-on-submit']);
+            $this->Form->create($this->base_uri . 'settings/company/modules/deleterow/', ['class' => 'disable-on-submit',
+                'onsubmit' => 'return confirm(' . json_encode($this->_('CpguardReseller.delete_confirm', true)) . ');']);
             $this->Form->fieldHidden('id', $module->id);
             $this->Form->fieldHidden('row_id', $row->id);
-            $this->Form->fieldSubmit('delete', $this->_('CpguardReseller.delete', true), ['class' => 'btn btn-default btn-sm']);
+            $this->Form->fieldSubmit('delete', $this->_('CpguardReseller.delete', true), ['class' => 'btn btn-danger btn-sm']);
             $this->Form->end();
             ?>
+            </div>
         </td>
     </tr>
     <?php } ?>

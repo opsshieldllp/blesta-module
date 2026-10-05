@@ -1,5 +1,8 @@
 <link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css'); ?>">
 <div class="cpguard-module pad">
+<?php if (empty($fields->cpguard_service_id)) { ?>
+<p role="status"><?php $this->_('CpguardReseller.pending'); ?></p>
+<?php } ?>
 <?php if ($error !== '') { ?>
 <div class="alert alert-danger"><?php echo $this->Html->safe($error); ?></div>
 <?php } ?>

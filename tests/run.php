@@ -376,4 +376,12 @@ $module = makeModule(function ($action, $data) use ($default, $remote) {
 });
 check($module->addService($package, ['client_id' => 10, 'cpguard_service_id' => '501224', 'use_module' => 'true']) === null,
     'Import cannot activate a locally active service with a suspended remote license');
+$module = makeModule($default);
+$unprovisioned = clone $service;
+$unprovisioned->status = 'pending';
+$unprovisioned->fields = stored($pending);
+$html = $module->tabLicense($package, $unprovisioned);
+check(strpos($html, 'License details will appear after activation.') !== false
+    && strpos($html, 'alert-danger') === false && count($module->calls) === 0,
+    'Unprovisioned service shows a neutral state without an API request');
 echo 'PASS: ' . $checks . " offline contract checks\n";
