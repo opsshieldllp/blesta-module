@@ -8,7 +8,7 @@ $lang['CpguardReseller.account_name'] = 'Account name';
 $lang['CpguardReseller.api_key'] = 'Reseller API key';
 $lang['CpguardReseller.add_account'] = 'Add Reseller Account';
 $lang['CpguardReseller.edit_account'] = 'Edit Reseller Account';
-$lang['CpguardReseller.account_help'] = 'Connect one OPSSHIELD reseller account to this module. Saving checks the connection over HTTPS.';
+$lang['CpguardReseller.account_help'] = 'Manage the reseller connection used to provision cPGuard licenses. Saving verifies your API key with OPSSHIELD.';
 $lang['CpguardReseller.key_help'] = 'Leave blank to keep the saved API key.';
 $lang['CpguardReseller.save'] = 'Save Account';
 $lang['CpguardReseller.no_accounts'] = 'Add your reseller account to begin provisioning licenses.';
@@ -79,3 +79,8 @@ $lang['CpguardReseller.error.single_account'] = 'Only one reseller account is al
 
 $lang['CpguardReseller.billing_note'] = 'OPSSHIELD renews reseller licenses monthly while they remain active and sufficient credit is available. Your Blesta billing period and selling price are independent.';
 $lang['CpguardReseller.lifecycle_note'] = 'Keep Use module enabled when suspending or canceling a service in Blesta so the action reaches OPSSHIELD. A local-only status change does not stop upstream charges.';
+
+$lang['CpguardReseller.account_name_help'] = 'A label to identify this connection in Blesta.';
+$lang['CpguardReseller.new_key_help'] = 'Enter the API key supplied for your OPSSHIELD reseller account.';
+
+$lang['CpguardReseller.connection_details'] = 'Connection Details';

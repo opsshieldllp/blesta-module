@@ -1,44 +1,55 @@
 <?php
 $this->Widget->clear();
+$this->Widget->setLinkButtons([]);
 $this->Widget->create($this->_($editing ? 'CpguardReseller.edit_account' : 'CpguardReseller.add_account', true));
 ?>
 <link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css?v=' . filemtime(__DIR__ . '/css/module.css')); ?>">
-<div class="cpguard-module pad">
-<?php $this->Form->create(null, ['class' => 'disable-on-submit']); ?>
-<p><?php $this->_('CpguardReseller.account_help'); ?></p>
-<div class="form-group">
-    <?php $this->Form->label($this->_('CpguardReseller.account_name', true), 'account_name'); ?>
-    <?php $this->Form->fieldText('account_name', $vars->account_name ?? '', ['id' => 'account_name', 'class' => 'form-control', 'required' => 'required']); ?>
-</div>
-<div class="form-group">
-    <?php $this->Form->label($this->_('CpguardReseller.api_key', true), 'api_key'); ?>
-    <?php
-    $keyAttributes = ['id' => 'api_key', 'class' => 'form-control', 'autocomplete' => 'new-password'];
-    if (!$editing) { $keyAttributes['required'] = 'required'; }
-    $this->Form->fieldPassword('api_key', $keyAttributes);
-    ?>
-    <?php if ($editing) { ?><p class="text-muted"><?php $this->_('CpguardReseller.key_help'); ?></p><?php } ?>
-</div>
-<div class="cpguard-actions">
-<?php
-$this->Form->fieldSubmit('save', $this->_('CpguardReseller.save', true), ['class' => 'btn btn-primary']);
-?>
-<a href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/' . ($editing ? 'manage/' . $row->module_id . '/' : '')); ?>"><?php $this->_($editing ? 'CpguardReseller.back_account' : 'CpguardReseller.back_modules'); ?></a>
-</div>
-<?php $this->Form->end(); ?>
-<?php if ($editing) { ?>
-<details class="cpguard-remove">
-    <summary><?php $this->_('CpguardReseller.delete_account'); ?></summary>
-    <p><?php $this->_('CpguardReseller.delete_help'); ?></p>
-    <?php
-    $this->Form->create($this->base_uri . 'settings/company/modules/deleterow/', ['class' => 'disable-on-submit',
-        'onsubmit' => 'return confirm(' . json_encode($this->_('CpguardReseller.delete_confirm', true)) . ');']);
-    $this->Form->fieldHidden('id', $row->module_id);
-    $this->Form->fieldHidden('row_id', $row->id);
-    $this->Form->fieldSubmit('delete', $this->_('CpguardReseller.delete_account', true), ['class' => 'btn btn-danger']);
-    $this->Form->end();
-    ?>
-</details>
-<?php } ?>
+<div class="inner cpguard-native-account">
+    <div class="pad cpguard-editor-intro">
+        <img src="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/images/logo.svg?v=' . filemtime(__DIR__ . '/images/logo.svg')); ?>" alt="OPSSHIELD" width="180" height="30">
+        <p><?php $this->_('CpguardReseller.account_help'); ?></p>
+    </div>
+    <?php $this->Form->create(null, ['class' => 'disable-on-submit']); ?>
+    <div class="title_row first"><h3><?php $this->_('CpguardReseller.connection_details'); ?></h3></div>
+    <div class="pad">
+        <ul>
+            <li>
+                <?php
+                $this->Form->label($this->_('CpguardReseller.account_name', true), 'account_name');
+                $this->Form->fieldText('account_name', $vars->account_name ?? '', ['id' => 'account_name',
+                    'required' => 'required', 'aria-describedby' => 'cpguard-name-help']);
+                ?>
+                <p id="cpguard-name-help" class="text-muted"><?php $this->_('CpguardReseller.account_name_help'); ?></p>
+            </li>
+            <li>
+                <?php
+                $this->Form->label($this->_('CpguardReseller.api_key', true), 'api_key');
+                $keyAttributes = ['id' => 'api_key', 'autocomplete' => 'new-password', 'aria-describedby' => 'cpguard-key-help'];
+                if (!$editing) { $keyAttributes['required'] = 'required'; }
+                $this->Form->fieldPassword('api_key', $keyAttributes);
+                ?>
+                <p id="cpguard-key-help" class="text-muted"><?php $this->_($editing ? 'CpguardReseller.key_help' : 'CpguardReseller.new_key_help'); ?></p>
+            </li>
+        </ul>
+    </div>
+    <div class="button_row cpguard-editor-actions">
+        <?php $this->Form->fieldSubmit('save', $this->_('CpguardReseller.save', true), ['class' => 'btn btn-primary']); ?>
+        <a class="btn btn-default" href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/' . ($editing ? 'manage/' . $row->module_id . '/' : '')); ?>"><?php $this->_($editing ? 'CpguardReseller.back_account' : 'CpguardReseller.back_modules'); ?></a>
+    </div>
+    <?php $this->Form->end(); ?>
+    <?php if ($editing) { ?>
+    <details class="cpguard-remove pad">
+        <summary><?php $this->_('CpguardReseller.delete_account'); ?></summary>
+        <p><?php $this->_('CpguardReseller.delete_help'); ?></p>
+        <?php
+        $this->Form->create($this->base_uri . 'settings/company/modules/deleterow/', ['class' => 'disable-on-submit',
+            'onsubmit' => 'return confirm(' . json_encode($this->_('CpguardReseller.delete_confirm', true)) . ');']);
+        $this->Form->fieldHidden('id', $row->module_id);
+        $this->Form->fieldHidden('row_id', $row->id);
+        $this->Form->fieldSubmit('delete', $this->_('CpguardReseller.delete_account', true), ['class' => 'btn btn-danger']);
+        $this->Form->end();
+        ?>
+    </details>
+    <?php } ?>
 </div>
 <?php $this->Widget->end(); ?>

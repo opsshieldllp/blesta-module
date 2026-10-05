@@ -64,10 +64,16 @@
 .cpguard-module .cpguard-service-counts div { display: flex; justify-content: space-between; gap: 16px; }
 .cpguard-module .cpguard-service-counts dt, .cpguard-module .cpguard-service-counts dd { margin: 0 0 4px; padding: 0; float: none; width: auto; font-weight: 400; font-variant-numeric: tabular-nums; }
 .cpguard-module .cpguard-live-note { margin-bottom: 0; }
-.cpguard-module .cpguard-remove { border-top: 1px solid #ddd; margin-top: 32px; padding-top: 20px; }
-.cpguard-module .cpguard-remove summary { cursor: pointer; font-weight: 600; }
-.cpguard-module .cpguard-remove p { margin-top: 16px; max-width: 600px; }
 @media (max-width: 600px) {
     .cpguard-module .cpguard-account-heading { align-items: flex-start; flex-direction: column; }
     .cpguard-module .cpguard-summary { grid-template-columns: 1fr; gap: 20px; }
 }
+
+.cpguard-native-account .cpguard-editor-intro img { display: block; width: 180px; height: auto; margin-bottom: 16px; }
+.cpguard-native-account .cpguard-editor-intro p { max-width: 620px; margin: 0; }
+.cpguard-native-account .text-muted { margin: 8px 0 0; }
+.cpguard-native-account .cpguard-editor-actions { display: flex; flex-wrap: wrap; gap: 12px; padding-bottom: 16px; padding-left: 15px; padding-right: 15px; box-sizing: border-box; }
+.cpguard-native-account .cpguard-remove { clear: both; border-top: 1px solid #ddd; margin-top: 16px; }
+.cpguard-native-account .cpguard-remove summary { cursor: pointer; font-weight: 600; }
+.cpguard-native-account .cpguard-remove p { max-width: 620px; margin: 16px 0; }
+.cpguard-native-account .cpguard-remove form { margin: 0; }
