@@ -154,16 +154,10 @@ class CpguardResellerApi
             && (!isset($parts['port']) || $parts['port'] === 443) ? $url : '';
     }
 
-    /** Treat 12 months and one year as the same billing cycle; day/month are not interchangeable. */
-    public static function sameCycle($termA, $periodA, $termB, $periodB)
+    /** Validate the upstream billing cycle independently of Blesta retail billing. */
+    public static function validCycle($term, $period)
     {
-        if (!self::positiveId($termA) || !self::positiveId($termB)
-            || (int)$termA > 10000 || (int)$termB > 10000) {
-            return false;
-        }
-        if ($periodA === 'year') { $termA = (int)$termA * 12; $periodA = 'month'; }
-        if ($periodB === 'year') { $termB = (int)$termB * 12; $periodB = 'month'; }
-        return in_array($periodA, ['day', 'week', 'month'], true)
-            && $periodA === $periodB && (int)$termA === (int)$termB;
+        return self::positiveId($term) && (int)$term <= 10000
+            && in_array($period, ['day', 'week', 'month', 'year'], true);
     }
 }

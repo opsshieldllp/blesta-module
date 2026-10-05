@@ -182,9 +182,9 @@ foreach ([['status' => 401, 'body' => '{"message":"secret-fixture"}'], ['status'
     try { $bad->request('accountdetails'); check(false, 'Invalid response fails'); }
     catch (RuntimeException $e) { check(strpos($e->getMessage(), 'secret-fixture') === false, 'Failure does not expose raw response'); }
 }
-check(CpguardResellerApi::sameCycle(12, 'month', 1, 'year'), 'Year/month equivalence');
-check(!CpguardResellerApi::sameCycle(30, 'day', 1, 'month'), 'Days are not months');
-check(!CpguardResellerApi::sameCycle(0, 'month', 0, 'month'), 'Invalid cycles rejected');
+check(CpguardResellerApi::validCycle(1, 'month'), 'Monthly upstream cycle accepted');
+check(!CpguardResellerApi::validCycle(1, 'invalid'), 'Unknown upstream period rejected');
+check(!CpguardResellerApi::validCycle(0, 'month'), 'Invalid cycles rejected');
 check(CpguardResellerApi::invitationUrl('https://evil.example/signup') === '', 'Foreign invitation blocked');
 check(CpguardResellerApi::invitationUrl('javascript:alert(1)') === '', 'Script URL blocked');
 check(CpguardResellerApi::invitationUrl('https://manage.opsshield.com@evil.example/') === '', 'Misleading URL blocked');
@@ -193,8 +193,9 @@ throws(function () use ($remote) { CpguardResellerApi::createdLicense(['services
 throws(function () use ($remote) { CpguardResellerApi::createdLicense(['services' => [$remote]], 559); }, 'Mismatched creation pricing rejected');
 
 $module = makeModule($default);
+unset($module->rows[2]);
 $initialFields = $module->getPackageFields((object)['module_group' => 'select']);
-check(isset($initialFields->options['558']) && $initialFields->html === '', 'Initial package fields use the account rendered by Blesta');
+check(isset($initialFields->options['558']) && strpos($initialFields->html, 'module_row') !== false, 'Initial package fields use the account rendered by Blesta');
 $vars = ['account_name' => 'Main', 'api_key' => 'test'];
 $savedRows = $module->rows;
 $module->rows = [];
@@ -211,12 +212,15 @@ check(values($module->addPackage($pvars))['cpguard_pricing_id'] === '558', 'Expl
 $pvars['module_group'] = 'select';
 check(values($module->addPackage($pvars))['cpguard_pricing_id'] === '558', 'Native select placeholder means a directly selected account');
 $pvars['pricing'][0]['period'] = 'year';
-check($module->addPackage($pvars) === null && $module->Input->errors(), 'Mismatched package cycle rejected');
+check(values($module->addPackage($pvars))['cpguard_pricing_id'] === '558', 'Yearly retail package can map to monthly upstream pricing');
+$pvars['pricing'][] = ['term' => '1', 'period' => 'month'];
+check(values($module->addPackage($pvars))['cpguard_pricing_id'] === '558', 'Mixed retail cycles can map to the same upstream plan');
 $module = makeModule($default);
 $pending = $module->addService($package, ['client_id' => 10, 'use_module' => 'false']);
 check(values($pending)['cpguard_client_email'] === 'buyer@example.com' && count($module->calls) === 0, 'Pending service does not provision');
+$package->pricing = [(object)['term' => '1', 'period' => 'year']];
 $meta = $module->addService($package, ['client_id' => 10, 'use_module' => 'true', 'client_email' => 'attacker@example.com']);
-check(values($meta)['cpguard_service_id'] === '501224', 'License provisioned');
+check(values($meta)['cpguard_service_id'] === '501224', 'Yearly retail service provisions the mapped monthly license');
 check(values($meta)['cpguard_invite_link'] !== '', 'Capitalized Invite_link supported');
 check($module->calls[1][2]['quantity'] === 1 && $module->calls[1][2]['client_email'] === 'buyer@example.com', 'Creation uses one license and authenticated client email');
 check($meta[1]['encrypted'] === 1, 'License key encrypted');
@@ -226,7 +230,9 @@ $linked = $module->addService($package, ['client_id' => 10, 'use_module' => 'tru
 check(values($linked)['cpguard_service_id'] === '501224' && count($module->calls) === 1 && $module->calls[0][1] === 'getlicense', 'Link existing license without duplicate creation');
 $module->calls = [];
 check($module->renewService($package, $service) === null && count($module->calls) === 0, 'Renewal makes no upstream purchase');
+$module->calls = [];
 $suspended = $module->suspendService($package, $service);
+check($module->calls[1][1] === 'suspendlicense' && $module->calls[1][2]['service_id'] === '501224', 'Suspension sends the stored license ID upstream');
 check(values($suspended)['cpguard_remote_status'] === 'suspended', 'Confirmed suspension metadata returned');
 $module = makeModule(function ($action, $data) use ($default) {
     return $action === 'suspendlicense' ? ['status' => false, 'service_id' => '501224'] : $default($action, $data);
@@ -236,6 +242,21 @@ $module = makeModule(function ($action, $data) use ($default, $remote) {
     return $action === 'getlicense' ? array_merge($remote, ['status' => 'canceled']) : $default($action, $data);
 });
 check(values($module->cancelService($package, $service))['cpguard_remote_status'] === 'canceled' && count($module->calls) === 1, 'Repeated cancellation is idempotent');
+$module = makeModule($default);
+$cancelled = $module->cancelService($package, $service);
+check(values($cancelled)['cpguard_remote_status'] === 'canceled' && $module->calls[1][1] === 'cancellicense', 'Cancellation is pushed upstream');
+foreach (['cancelService' => 'cancellicense', 'unsuspendService' => 'unsuspendlicense'] as $method => $actionName) {
+    $module = makeModule(function ($action, $data) use ($default, $remote, $actionName) {
+        if ($action === 'getlicense') { return array_merge($remote, ['status' => 'suspended']); }
+        return $action === $actionName ? ['status' => false, 'service_id' => '501224'] : $default($action, $data);
+    });
+    check($module->$method($package, $service) === null && $module->Input->errors(), 'Upstream failure prevents a successful local ' . $method);
+}
+$module = makeModule(function ($action, $data) use ($default, $remote) {
+    return $action === 'getlicense' ? array_merge($remote, ['status' => 'suspended']) : $default($action, $data);
+});
+check(values($module->unsuspendService($package, $service))['cpguard_remote_status'] === 'active'
+    && $module->calls[1][1] === 'unsuspendlicense', 'Unsuspension is pushed upstream');
 $module = makeModule($default);
 $target = clone $package;
 $target->meta = (object)['cpguard_pricing_id' => '559'];
@@ -332,8 +353,8 @@ $vars = ['account_name' => 'Test', 'api_key' => ['invalid']];
 throws(function () { new CpguardResellerApi(['invalid']); }, 'Array API key rejected');
 check(!CpguardResellerApi::positiveId(['501224']), 'Array service ID rejected');
 check(!CpguardResellerApi::positiveId(true), 'Boolean service ID rejected');
-check(!CpguardResellerApi::sameCycle([], 'month', 1, 'month'), 'Malformed cycle rejected');
-check(!CpguardResellerApi::sameCycle(PHP_INT_MAX, 'year', 1, 'month'), 'Overflow-sized cycle rejected');
+check(!CpguardResellerApi::validCycle([], 'month'), 'Malformed cycle rejected');
+check(!CpguardResellerApi::validCycle(PHP_INT_MAX, 'year'), 'Overflow-sized cycle rejected');
 check(CpguardResellerApi::invitationUrl("https://manage.opsshield.com/\\@evil.example/") === '', 'Backslash invitation URL rejected');
 check(CpguardResellerApi::invitationUrl("https://manage.opsshield.com/\npath") === '', 'Control characters in invitation URL rejected');
 foreach ([['service_id' => []], ['pricing_id' => false], ['license_key' => "bad\0key"],

@@ -16,12 +16,13 @@ Requires PHP 7.4 or newer, PHP cURL, a working certificate trust store, and outb
 ## Create license packages
 
 1. Open **Packages → Create Package**. Select **cPGuard Reseller** as the module.
-2. Select the specific **Reseller Account** directly. Account groups are intentionally unsupported because remote service IDs belong to one account.
-3. Select **OPSSHIELD license pricing**. Each option shows the upstream package, term, period, wholesale price, currency and pricing ID.
-4. Configure your own retail price. Every pricing row on that package must have the same billing cycle as the selected upstream option. Retail currencies and amounts may differ from the wholesale currency and amount.
-5. Create separate Blesta packages for monthly, yearly or other billing cycles. Twelve months and one year are accepted as equivalent; thirty days and one month are not.
-6. Set service quantity to one and disable quantity changes. Create a separate Blesta service for each license.
-7. Configure the package welcome email, package groups/order form, and Blesta payment/provisioning automation normally. Provision only after payment or staff approval as appropriate.
+2. The configured reseller account is assigned automatically; no account or group selection is required.
+3. Select **OPSSHIELD reseller package**. Each option shows the upstream package, monthly wholesale price, currency and pricing ID.
+4. Configure your own retail prices and billing periods. Monthly, yearly, or multiple retail periods can use the same monthly OPSSHIELD reseller package. Blesta customer billing and OPSSHIELD monthly renewal are independent.
+5. Set service quantity to one and disable quantity changes. Create a separate Blesta service for each license.
+6. Configure the package welcome email, package groups/order form, and Blesta payment/provisioning automation normally. Provision only after payment or staff approval as appropriate.
+
+**Suspension and cancellation must reach OPSSHIELD.** Keep **Use module** enabled when performing these actions in Blesta. The module sends suspend, unsuspend and cancel requests upstream and reports API failures to Blesta. A local-only status change does not stop OPSSHIELD billing. Scheduled cancellation takes effect when Blesta executes it; until then an active upstream license can continue renewing from reseller credit.
 
 Package setup and provisioning both check upstream pricing availability. This avoids choosing the first pricing entry with a matching currency and accidentally ordering the wrong term.
 
@@ -82,11 +83,11 @@ Run the offline checks from the repository root:
 php tests/run.php
 ```
 
-These checks exercise API response validation, failure handling, lifecycle transitions, replacement license metadata, account scoping, billing cycle matching, staff import restrictions, invitation handling, POST action controls, and escaped template output using fixtures. They do not prove a real order was provisioned.
+These checks exercise API response validation, failure handling, lifecycle transitions, replacement license metadata, account scoping, independent retail billing periods, staff import restrictions, invitation handling, POST action controls, and escaped template output using fixtures. They do not prove a real order was provisioned.
 
 Before selling licenses, verify in the installed Blesta instance: account connection, package save, welcome email tags, a paid test order, client access, reissue, suspend/unsuspend, package change/new key, and cancellation. A live order or package change can consume reseller credit; choose the customer, upstream pricing and spending limit before running those checks.
 
-Verification: account connection, account details, upstream pricing, package save and billing-cycle rejection were exercised on Blesta 5.10.1. The reviewed module also passes offline regression checks on PHP 8.2 and 8.5 and a compatibility smoke check against the Blesta 5.10.1 base class. Paid provisioning and customer lifecycle actions have not yet been tested live.
+Verification: account connection, account details, upstream pricing, package save with independent retail billing periods were exercised on Blesta 5.10.1. The reviewed module also passes offline regression checks on PHP 8.2 and 8.5 and a compatibility smoke check against the Blesta 5.10.1 base class. Paid provisioning and customer lifecycle actions have not yet been tested live.
 
 ## Development and packaging
 

@@ -96,11 +96,12 @@ class CpguardReseller extends Module
     {
         $fields = new ModuleFields();
         $options = ['' => $this->lang('select_pricing')];
+        $rows = $this->getModuleRows() ?: [];
+        $html = $this->render('package_options', ['account_id' => count($rows) === 1 ? $rows[0]->id : null]);
         try {
             // On initial module selection, Blesta renders the first account but does not yet send module_row.
             $selection = (object)(array)$vars;
             if (empty($selection->module_row)) {
-                $rows = $this->getModuleRows();
                 $selection->module_row = $rows[0]->id ?? null;
             }
             $row = $this->packageRow($selection);
@@ -110,8 +111,9 @@ class CpguardReseller extends Module
                     . ' (#' . $id . ')';
             }
         } catch (Exception $e) {
-            $fields->setHtml('<div class="alert alert-danger">' . $this->escape($e->getMessage()) . '</div>');
+            $html = '<div class="alert alert-danger">' . $this->escape($e->getMessage()) . '</div>' . $html;
         }
+        $fields->setHtml($html);
         $meta = (array)($vars->meta ?? []);
         $label = $fields->label($this->lang('pricing'), 'cpguard_pricing_id');
         $label->attach($fields->fieldSelect('meta[cpguard_pricing_id]', $options,
@@ -132,7 +134,6 @@ class CpguardReseller extends Module
             $row = $this->packageRow((object)$vars);
             $id = $vars['meta']['cpguard_pricing_id'] ?? '';
             $pricing = $this->findPricing($row, $id);
-            $this->checkCycles($vars['pricing'] ?? [], $pricing);
             return [['key' => 'cpguard_pricing_id', 'value' => $pricing['id'], 'encrypted' => 0]];
         } catch (Exception $e) {
             $this->error($e);
@@ -230,7 +231,6 @@ class CpguardReseller extends Module
                 return $this->fields(['cpguard_client_email' => $email]);
             }
             $pricing = $this->findPricing($row, $package->meta->cpguard_pricing_id ?? '');
-            $this->checkCycles($package->pricing ?? [], $pricing);
             $response = $this->callApi($row, 'addlicense', [
                 'pricing_id' => $pricing['id'], 'quantity' => 1, 'client_email' => $email
             ]);
@@ -314,7 +314,6 @@ class CpguardReseller extends Module
                 throw new RuntimeException($this->lang('error.active'));
             }
             $pricing = $this->findPricing($row, $package_to->meta->cpguard_pricing_id ?? '');
-            $this->checkCycles($package_to->pricing ?? [], $pricing);
             if ((string)$current['pricing_id'] === (string)$pricing['id']) {
                 return $this->fields((array)$fields);
             }
@@ -472,8 +471,7 @@ class CpguardReseller extends Module
             }
             foreach ($package['pricing'] as $price) {
                 if (!is_array($price) || !CpguardResellerApi::positiveId($price['id'] ?? null)
-                    || !CpguardResellerApi::sameCycle($price['term'] ?? null, $price['period'] ?? null,
-                        $price['term'] ?? null, $price['period'] ?? null)
+                    || !CpguardResellerApi::validCycle($price['term'] ?? null, $price['period'] ?? null)
                     || !is_string($price['currency'] ?? null) || !preg_match('/^[A-Z]{3}$/D', $price['currency'])
                     || !is_numeric($price['price'] ?? null) || (float)$price['price'] < 0) {
                     throw new RuntimeException($this->lang('error.packages'));
@@ -492,18 +490,6 @@ class CpguardReseller extends Module
             throw new RuntimeException($this->lang('error.pricing'));
         }
         return $prices[$id];
-    }
-
-    private function checkCycles($localPricing, array $remotePricing)
-    {
-        if (!$localPricing) { throw new RuntimeException($this->lang('error.cycle')); }
-        foreach ($localPricing as $local) {
-            $local = (array)$local;
-            if (!CpguardResellerApi::sameCycle($local['term'] ?? '', $local['period'] ?? '',
-                $remotePricing['term'], $remotePricing['period'])) {
-                throw new RuntimeException($this->lang('error.cycle'));
-            }
-        }
     }
 
     private function clientEmail($clientId)

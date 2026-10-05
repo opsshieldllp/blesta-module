@@ -1,0 +1,20 @@
+<div class="cpguard-package-notes">
+    <p><?php $this->_('CpguardReseller.billing_note'); ?></p>
+    <p><strong><?php $this->_('CpguardReseller.lifecycle_note'); ?></strong></p>
+</div>
+<?php if ($account_id !== null) { ?>
+<script>
+(function () {
+    // Keep Blesta's native account fields submitted, but remove the redundant choices.
+    var container = document.getElementById('module_options');
+    if (!container) { return; }
+    [['module_group', ''], ['module_row', <?php echo json_encode((string)$account_id); ?>]].forEach(function (setting) {
+        var field = container.querySelector('[name="' + setting[0] + '"]');
+        if (!field) { return; }
+        field.value = setting[1];
+        var item = field.closest('li');
+        if (item) { item.style.setProperty('display', 'none', 'important'); }
+    });
+})();
+</script>
+<?php } ?>
