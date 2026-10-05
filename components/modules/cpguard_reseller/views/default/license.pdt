@@ -1,4 +1,4 @@
-<link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css'); ?>">
+<link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css?v=' . filemtime(__DIR__ . '/css/module.css')); ?>">
 <div class="cpguard-module pad">
 <?php if (empty($fields->cpguard_service_id)) { ?>
 <p role="status"><?php $this->_('CpguardReseller.pending'); ?></p>

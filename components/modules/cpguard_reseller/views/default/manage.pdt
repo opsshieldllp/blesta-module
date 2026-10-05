@@ -1,57 +1,56 @@
 <?php
 $this->Widget->clear();
-$this->Widget->setLinkButtons([[
-    'name' => $this->_('CpguardReseller.add_account', true),
-    'attributes' => ['href' => $this->base_uri . 'settings/company/modules/addrow/' . $module->id . '/']
-]]);
-$this->Widget->create($this->_('CpguardReseller.accounts', true));
+$this->Widget->create($this->_('CpguardReseller.account_title', true));
+$assets = $this->base_uri . '../components/modules/cpguard_reseller/views/default/';
 ?>
-<link rel="stylesheet" href="<?php echo $this->Html->safe($this->base_uri . '../components/modules/cpguard_reseller/views/default/css/module.css'); ?>">
-<div class="cpguard-module">
+<link rel="stylesheet" href="<?php echo $this->Html->safe($assets . 'css/module.css?v=' . filemtime(__DIR__ . '/css/module.css')); ?>">
+<div class="cpguard-module pad">
+    <div class="cpguard-brand">
+        <img src="<?php echo $this->Html->safe($assets . 'images/logo.svg?v=' . filemtime(__DIR__ . '/images/logo.svg')); ?>" alt="OPSSHIELD" width="230" height="38">
+        <p><?php $this->_('CpguardReseller.account_summary'); ?></p>
+    </div>
 <?php if (empty($module->rows)) { ?>
-<p class="pad"><?php $this->_('CpguardReseller.no_accounts'); ?></p>
+    <p><?php $this->_('CpguardReseller.no_accounts'); ?></p>
+    <a class="btn btn-primary" href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/addrow/' . $module->id . '/'); ?>"><?php $this->_('CpguardReseller.add_account'); ?></a>
 <?php } else { ?>
-<div class="table-responsive">
-<table class="table table-striped">
-    <thead><tr>
-        <?php foreach (['account_name', 'balance', 'due', 'services', 'options'] as $heading) { ?>
-        <th<?php if (in_array($heading, ['balance', 'due'], true)) { echo ' class="cpguard-amount"'; } ?>><?php $this->_('CpguardReseller.' . $heading); ?></th>
-        <?php } ?>
-    </tr></thead>
-    <tbody>
+    <?php if (count($module->rows) > 1) { ?><p class="alert alert-info"><?php $this->_('CpguardReseller.error.single_account'); ?></p><?php } ?>
     <?php foreach ($module->rows as $row) { $balance = $balances[$row->id] ?? []; ?>
-    <tr>
-        <td><?php echo $this->Html->safe($row->meta->account_name); ?></td>
-        <?php if (isset($balance['connection_error'])) { ?>
-        <td colspan="3"><span class="text-danger"><?php echo $this->Html->safe($balance['connection_error']); ?></span></td>
-        <?php } else { ?>
-        <?php foreach (['credit', 'due'] as $kind) { ?>
-        <td class="cpguard-amount"><?php foreach (($balance[$kind] ?? []) as $currency => $amount) { ?>
-            <div><?php echo $this->Html->safe($amount . ' ' . $currency); ?></div>
-        <?php } ?></td>
-        <?php } ?>
-        <td><?php foreach (($balance['services'] ?? []) as $status => $count) { ?>
-            <div><?php echo $this->Html->safe($status . ': ' . $count); ?></div>
-        <?php } ?></td>
-        <?php } ?>
-        <td>
-            <div class="cpguard-actions">
-            <a class="btn btn-default btn-sm" href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/editrow/' . $module->id . '/' . $row->id . '/'); ?>"><?php $this->_('CpguardReseller.edit'); ?></a>
-            <?php
-            $this->Form->create($this->base_uri . 'settings/company/modules/deleterow/', ['class' => 'disable-on-submit',
-                'onsubmit' => 'return confirm(' . json_encode($this->_('CpguardReseller.delete_confirm', true)) . ');']);
-            $this->Form->fieldHidden('id', $module->id);
-            $this->Form->fieldHidden('row_id', $row->id);
-            $this->Form->fieldSubmit('delete', $this->_('CpguardReseller.delete', true), ['class' => 'btn btn-danger btn-sm']);
-            $this->Form->end();
-            ?>
+    <section class="cpguard-account">
+        <div class="cpguard-account-heading">
+            <div>
+                <span class="cpguard-caption"><?php $this->_('CpguardReseller.account_name'); ?></span>
+                <h3><?php echo $this->Html->safe($row->meta->account_name); ?></h3>
+                <span class="cpguard-connection<?php echo isset($balance['connection_error']) ? ' cpguard-connection-error' : ''; ?>"><?php $this->_(isset($balance['connection_error']) ? 'CpguardReseller.connection_failed' : 'CpguardReseller.connected'); ?></span>
             </div>
-        </td>
-    </tr>
+            <a class="btn btn-default" href="<?php echo $this->Html->safe($this->base_uri . 'settings/company/modules/editrow/' . $module->id . '/' . $row->id . '/'); ?>"><?php $this->_('CpguardReseller.edit_account'); ?></a>
+        </div>
+        <?php if (isset($balance['connection_error'])) { ?>
+        <p class="alert alert-danger"><?php echo $this->Html->safe($balance['connection_error']); ?></p>
+        <?php } else { ?>
+        <div class="cpguard-summary">
+            <?php foreach (['credit' => 'balance', 'due' => 'due'] as $kind => $heading) { ?>
+            <div>
+                <h4><?php $this->_('CpguardReseller.' . $heading); ?></h4>
+                <?php foreach (($balance[$kind] ?? []) as $currency => $amount) { ?>
+                <div class="cpguard-money"><?php echo $this->Html->safe($amount . ' ' . $currency); ?></div>
+                <?php } ?>
+                <?php if (empty($balance[$kind])) { ?><span><?php $this->_('CpguardReseller.not_available'); ?></span><?php } ?>
+            </div>
+            <?php } ?>
+            <div>
+                <h4><?php $this->_('CpguardReseller.services'); ?></h4>
+                <dl class="cpguard-service-counts">
+                <?php foreach (($balance['services'] ?? []) as $status => $count) { ?>
+                    <div><dt><?php echo $this->Html->safe(ucfirst($status)); ?></dt><dd><?php echo $this->Html->safe($count); ?></dd></div>
+                <?php } ?>
+                </dl>
+                <?php if (empty($balance['services'])) { ?><span><?php $this->_('CpguardReseller.no_services'); ?></span><?php } ?>
+            </div>
+        </div>
+        <p class="cpguard-caption cpguard-live-note"><?php $this->_('CpguardReseller.live_summary'); ?></p>
+        <?php } ?>
+    </section>
     <?php } ?>
-    </tbody>
-</table>
-</div>
 <?php } ?>
 </div>
 <?php $this->Widget->end(); ?>

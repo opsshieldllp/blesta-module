@@ -97,7 +97,7 @@ class TestHelpers
         if ($method === 'fieldPassword' && (count($args) !== 2 || !is_array($args[1]))) {
             throw new RuntimeException('fieldPassword expects name and attributes only');
         }
-        if ($method === 'create') { echo '<form method="post"><input name="_csrf_token" value="fixture">'; }
+        if ($method === 'create') { echo '<form method="post" action="' . $this->safe(is_string($args[0] ?? null) ? $args[0] : '') . '"><input name="_csrf_token" value="fixture">'; }
         if ($method === 'end') { echo '</form>'; }
         if ($method === 'fieldHidden') { echo '<input name="' . $this->safe($args[0]) . '" value="' . $this->safe($args[1]) . '">'; }
         if ($method === 'fieldSubmit') { echo '<button>' . $this->safe($args[1]) . '</button>'; }
@@ -145,8 +145,8 @@ function stored($fields) { return array_map(function ($field) { return (object)$
 function makeModule($handler)
 {
     $module = new TestModule();
-    $module->rows[1] = (object)['id' => 1, 'meta' => (object)['api_key' => 'fixture-key', 'account_name' => 'Test reseller']];
-    $module->rows[2] = (object)['id' => 2, 'meta' => (object)['api_key' => 'other-key', 'account_name' => 'Other reseller']];
+    $module->rows[1] = (object)['id' => 1, 'module_id' => 3, 'meta' => (object)['api_key' => 'fixture-key', 'account_name' => 'Test reseller']];
+    $module->rows[2] = (object)['id' => 2, 'module_id' => 3, 'meta' => (object)['api_key' => 'other-key', 'account_name' => 'Other reseller']];
     $module->handler = $handler;
     return $module;
 }
@@ -196,7 +196,13 @@ $module = makeModule($default);
 $initialFields = $module->getPackageFields((object)['module_group' => 'select']);
 check(isset($initialFields->options['558']) && $initialFields->html === '', 'Initial package fields use the account rendered by Blesta');
 $vars = ['account_name' => 'Main', 'api_key' => 'test'];
+$savedRows = $module->rows;
+$module->rows = [];
 $account = $module->addModuleRow($vars);
+$module->rows = $savedRows;
+$module->calls = [];
+check($module->addModuleRow($vars) === null && count($module->calls) === 0, 'Second account rejected before calling the API');
+check(strpos(json_encode($module->Input->errors()), 'Only one reseller account') !== false, 'Duplicate account error explains how to update existing account');
 check($account[1]['encrypted'] === 1, 'API key stored encrypted');
 $vars = ['account_name' => 'Rename', 'api_key' => ''];
 check(values($module->editModuleRow($module->rows[1], $vars))['api_key'] === 'fixture-key', 'Blank edit retains key');
@@ -289,9 +295,17 @@ check(strpos($html, '<script>') === false && strpos($html, '&lt;script&gt;') !==
 $module = makeModule($default);
 $html = $module->manageModule((object)['id' => 3, 'rows' => [$module->rows[1]]], $vars);
 check(strpos($html, '10 USD') !== false && strpos($html, 'fixture-key') === false, 'Account view shows credit without API key');
+check(strpos($html, '/addrow/') === false && strpos($html, '/deleterow/') === false, 'Configured account summary has no add or delete action');
+check(strpos($html, 'images/logo.svg') !== false, 'Account summary uses the OPSSHIELD logo');
 check($module->module->id === 3, 'Manage view sets installed module identity before logging');
 $html = $module->manageEditRow($module->rows[1], $vars);
 check(strpos($html, 'fixture-key') === false, 'Saved API key not rendered in form');
+check(strpos($html, '/deleterow/') !== false && strpos($html, '_csrf_token') !== false, 'Account removal uses a CSRF-protected POST on the edit screen');
+$html = $module->manageModule((object)['id' => 3, 'rows' => []], $vars);
+check(strpos($html, '/addrow/3/') !== false, 'Empty account screen offers initial setup');
+$module = makeModule(function () { throw new RuntimeException('Connection failed'); });
+$html = $module->manageModule((object)['id' => 3, 'rows' => [$module->rows[1]]], $vars);
+check(strpos($html, 'Connection unavailable') !== false && strpos($html, '/editrow/3/1/') !== false, 'Connection failure retains account editing without reporting a balance');
 class LoggingFailureModule extends CpguardReseller
 {
     protected function apiClient($row)
@@ -312,7 +326,7 @@ check(isset($loggerFailure->runRequest($module->rows[1])['services']), 'Logging 
 $module = makeModule($default);
 check($module->getServiceName($service) === 'cPGuard #501224', 'Service labels do not expose a license key or email');
 $vars = ['account_name' => ['invalid'], 'api_key' => 'fixture-key'];
-check($module->addModuleRow($vars) === null, 'Array account name fails validation without a PHP warning');
+check($module->editModuleRow($module->rows[1], $vars) === null, 'Array account name fails validation without a PHP warning');
 $vars = ['account_name' => 'Test', 'api_key' => ['invalid']];
 // Exercise the actual API constructor rather than the test transport override.
 throws(function () { new CpguardResellerApi(['invalid']); }, 'Array API key rejected');

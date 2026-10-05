@@ -9,6 +9,8 @@ Sell and manage cPGuard licenses from your own Blesta installation using your OP
 3. Click **Manage → Add Reseller Account**. Enter an account name and the reseller API key supplied by OPSSHIELD. Saving performs a read-only connection check. The key is stored encrypted by Blesta; leaving the key blank when editing retains it.
 4. Maintain enough credit in your OPSSHIELD account. The module's account page displays upstream credit, amount due and service counts.
 
+Only one reseller account can be configured per installed module/company. Use **Edit Reseller Account** to rename it or rotate the key for the same OPSSHIELD account. Do not replace it with another reseller identity while licenses are attached. **Delete Account** is on the edit page; Blesta blocks deletion while packages or non-canceled services use the connection. Deleting the configuration does not cancel upstream licenses.
+
 Requires PHP 7.4 or newer, PHP cURL, a working certificate trust store, and outbound HTTPS access to `manage.opsshield.com`. Live installation and package configuration verified on Blesta 5.10.1 with PHP 8.2.34. Confirm compatibility before production rollout on other versions.
 
 ## Create license packages

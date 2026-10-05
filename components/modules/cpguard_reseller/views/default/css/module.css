@@ -27,13 +27,7 @@
     outline: 2px solid #014965;
     outline-offset: 2px;
 }
-.cpguard-module .btn { min-height: 40px; box-sizing: border-box; }
 .cpguard-module .text-muted { margin-top: var(--cpg-space); }
-.cpguard-module .table-responsive { overflow-x: auto; }
-.cpguard-module table { width: 100%; }
-.cpguard-module th { text-align: left; }
-.cpguard-module td, .cpguard-module th { padding: calc(var(--cpg-space) * 1.5); vertical-align: top; }
-.cpguard-module td { font-variant-numeric: tabular-nums; }
 .cpguard-module dl { margin: 0 0 calc(var(--cpg-space) * 3); }
 .cpguard-module dt { margin-top: var(--cpg-space); font-weight: 600; }
 .cpguard-module dd { margin: 0 0 calc(var(--cpg-space) * 2); }
@@ -41,15 +35,39 @@
 .cpguard-module form + form { margin-top: calc(var(--cpg-space) * 2); }
 @media (max-width: 600px) {
     .cpguard-module.pad { padding: calc(var(--cpg-space) * 2); }
-    .cpguard-module .btn { min-height: 44px; }
 }
 
 .cpguard-module .cpguard-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .cpguard-module .cpguard-actions form { width: auto; margin: 0; padding: 0; }
-.cpguard-module .cpguard-actions a.btn { display: inline-flex; align-items: center; justify-content: center; }
-.cpguard-module .cpguard-amount { text-align: right; white-space: nowrap; }
 
 .cpguard-module .alert { margin-bottom: 16px; padding: 12px 16px; border: 1px solid; border-radius: 4px; }
 .cpguard-module .alert-danger { color: #842029; background: #f8d7da; border-color: #e5adb2; }
 .cpguard-module .alert-success { color: #0f5132; background: #d1e7dd; border-color: #a3cfbb; }
 .cpguard-module .alert-info { color: #084d61; background: #d9edf4; border-color: #9ccbd9; }
+
+.cpguard-module .cpguard-brand { padding-bottom: 24px; }
+.cpguard-module .cpguard-brand img { display: block; max-width: 100%; height: auto; margin-bottom: 12px; }
+.cpguard-module .cpguard-brand p { margin: 0; }
+.cpguard-module .cpguard-account { border-top: 1px solid #ddd; padding-top: 24px; }
+.cpguard-module .cpguard-account + .cpguard-account { margin-top: 24px; }
+.cpguard-module .cpguard-account-heading { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+.cpguard-module .cpguard-account-heading .btn { flex-shrink: 0; }
+.cpguard-module .cpguard-account h3 { margin: 4px 0 8px; font-size: 18px; line-height: 1.4; font-weight: 600; }
+.cpguard-module .cpguard-caption { color: #626262; font-size: 12px; }
+.cpguard-module .cpguard-connection { color: #246238; }
+.cpguard-module .cpguard-connection::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; margin-right: 7px; }
+.cpguard-module .cpguard-connection-error { color: #a12622; }
+.cpguard-module .cpguard-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; padding: 20px 0; border-top: 1px solid #e5e5e5; }
+.cpguard-module .cpguard-summary h4 { margin: 0 0 12px; padding: 0; font-size: 13px; font-weight: 600; }
+.cpguard-module .cpguard-money { font-size: 18px; font-variant-numeric: tabular-nums; line-height: 1.6; }
+.cpguard-module .cpguard-service-counts { margin: 0; max-width: 220px; }
+.cpguard-module .cpguard-service-counts div { display: flex; justify-content: space-between; gap: 16px; }
+.cpguard-module .cpguard-service-counts dt, .cpguard-module .cpguard-service-counts dd { margin: 0 0 4px; padding: 0; float: none; width: auto; font-weight: 400; font-variant-numeric: tabular-nums; }
+.cpguard-module .cpguard-live-note { margin-bottom: 0; }
+.cpguard-module .cpguard-remove { border-top: 1px solid #ddd; margin-top: 32px; padding-top: 20px; }
+.cpguard-module .cpguard-remove summary { cursor: pointer; font-weight: 600; }
+.cpguard-module .cpguard-remove p { margin-top: 16px; max-width: 600px; }
+@media (max-width: 600px) {
+    .cpguard-module .cpguard-account-heading { align-items: flex-start; flex-direction: column; }
+    .cpguard-module .cpguard-summary { grid-template-columns: 1fr; gap: 20px; }
+}

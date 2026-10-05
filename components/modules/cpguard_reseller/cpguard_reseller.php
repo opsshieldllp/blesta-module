@@ -47,10 +47,19 @@ class CpguardReseller extends Module
         if (!$vars) {
             $vars = ['account_name' => $module_row->meta->account_name, 'api_key' => ''];
         }
-        return $this->render('account', ['vars' => (object)$vars, 'editing' => true]);
+        return $this->render('account', ['vars' => (object)$vars, 'editing' => true, 'row' => $module_row]);
     }
 
     public function addModuleRow(array &$vars)
+    {
+        if ($this->getModuleRows()) {
+            $this->error(new RuntimeException($this->lang('error.single_account')));
+            return;
+        }
+        return $this->accountMeta($vars);
+    }
+
+    private function accountMeta(array $vars)
     {
         try {
             $name = is_string($vars['account_name'] ?? null) ? trim($vars['account_name']) : '';
@@ -80,7 +89,7 @@ class CpguardReseller extends Module
         if (!isset($save['api_key']) || $save['api_key'] === '') {
             $save['api_key'] = $module_row->meta->api_key;
         }
-        return $this->addModuleRow($save);
+        return $this->accountMeta($save);
     }
 
     public function getPackageFields($vars = null)
