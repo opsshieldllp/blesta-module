@@ -1,4 +1,5 @@
 <div class="cpguard-package-notes">
+    <p><?php echo $this->Html->safe(sprintf($this->_('CpguardReseller.currency_help', true), $currency)); ?></p>
     <p><?php $this->_('CpguardReseller.billing_note'); ?></p>
     <p><strong><?php $this->_('CpguardReseller.lifecycle_note'); ?></strong></p>
 </div>

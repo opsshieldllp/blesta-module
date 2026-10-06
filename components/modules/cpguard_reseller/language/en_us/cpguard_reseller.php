@@ -84,3 +84,7 @@ $lang['CpguardReseller.account_name_help'] = 'A label to identify this connectio
 $lang['CpguardReseller.new_key_help'] = 'Enter the API key supplied for your OPSSHIELD reseller account.';
 
 $lang['CpguardReseller.connection_details'] = 'Connection Details';
+
+$lang['CpguardReseller.current_mapping'] = 'Current mapping';
+$lang['CpguardReseller.currency_help'] = 'Showing %s packages based on the Blesta company country. Existing mappings in another currency are retained.';
+$lang['CpguardReseller.no_currency_packages'] = 'No %s reseller packages are available. Check the company country or contact OPSSHIELD to enable packages in this currency.';

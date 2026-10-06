@@ -57,8 +57,18 @@ class Loader
         foreach ($helpers as $helper) { $object->view->$helper = new TestHelpers(); }
     }
 }
+class Configure
+{
+    public static function get($key) { return $key === 'Blesta.company_id' ? 1 : null; }
+}
 class TestModels
 {
+    public $country = 'US';
+    public function getSetting($company, $key)
+    {
+        if ($company !== 1 || $key !== 'country') { throw new RuntimeException('Incorrect company country lookup'); }
+        return $this->country === null ? false : (object)['value' => $this->country];
+    }
     public $saved;
     public $service;
     public function get($id) { return $this->service ?? ($id ? (object)['email' => 'buyer@example.com'] : false); }
@@ -196,6 +206,31 @@ $module = makeModule($default);
 unset($module->rows[2]);
 $initialFields = $module->getPackageFields((object)['module_group' => 'select']);
 check(isset($initialFields->options['558']) && strpos($initialFields->html, 'module_row') !== false, 'Initial package fields use the account rendered by Blesta');
+$catalog = function ($action, $data) use ($default, $pricing) {
+    return $action === 'getpackages' ? [['id' => 16, 'name' => 'Reseller Standard', 'pricing' => [
+        $pricing, array_merge($pricing, ['id' => '600', 'currency' => 'INR']),
+        array_merge($pricing, ['id' => '601', 'currency' => 'EUR'])
+    ]]] : $default($action, $data);
+};
+foreach (['IN' => '600', 'US' => '558', 'GB' => '558', '' => '558'] as $country => $expected) {
+    $filtered = makeModule($catalog);
+    $filtered->Companies = new TestModels();
+    $filtered->Companies->country = $country;
+    $fields = $filtered->getPackageFields();
+    check(array_keys($fields->options) === ['', (int)$expected], 'Company country selects only its reseller currency: ' . $country);
+}
+$filtered->Companies->country = null;
+check(isset($filtered->getPackageFields()->options['558']), 'Missing country defaults to USD');
+$filtered->Companies->country = 'IN';
+$fields = $filtered->getPackageFields((object)['meta' => ['cpguard_pricing_id' => '558']]);
+check(count($fields->options) === 3 && strpos($fields->options['558'], 'Current mapping') !== false,
+    'Existing foreign-currency mapping remains explicitly labeled without exposing other currencies');
+$filtered = makeModule($default);
+$filtered->Companies = new TestModels();
+$filtered->Companies->country = 'IN';
+$fields = $filtered->getPackageFields();
+check(count($fields->options) === 1 && strpos($fields->html, 'No INR reseller packages') !== false,
+    'Missing preferred currency reports an empty catalog without falling back to another currency');
 $vars = ['account_name' => 'Main', 'api_key' => 'test'];
 $savedRows = $module->rows;
 $module->rows = [];

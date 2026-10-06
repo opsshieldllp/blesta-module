@@ -17,7 +17,7 @@ Requires PHP 7.4 or newer, PHP cURL, a working certificate trust store, and outb
 
 1. Open **Packages → Create Package**. Select **cPGuard Reseller** as the module.
 2. The configured reseller account is assigned automatically; no account or group selection is required.
-3. Select **OPSSHIELD reseller package**. Each option shows the upstream package, monthly wholesale price, currency and pricing ID.
+3. Select **OPSSHIELD reseller package**. Each option shows the upstream package, monthly wholesale price, currency and pricing ID. The company country under **Settings → Company → General → Localization** controls the available currency: India (`IN`) shows INR; other or unset countries show USD. Reload the package form after changing this setting. An existing mapping in another currency remains visible as **Current mapping**; the module never automatically converts or remaps it. Retail/customer currencies do not control this filter.
 4. Configure your own retail prices and billing periods. Monthly, yearly, or multiple retail periods can use the same monthly OPSSHIELD reseller package. Blesta customer billing and OPSSHIELD monthly renewal are independent.
 5. Set service quantity to one and disable quantity changes. Create a separate Blesta service for each license.
 6. Configure the package welcome email, package groups/order form, and Blesta payment/provisioning automation normally. Provision only after payment or staff approval as appropriate.

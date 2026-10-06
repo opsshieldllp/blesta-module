@@ -97,7 +97,10 @@ class CpguardReseller extends Module
         $fields = new ModuleFields();
         $options = ['' => $this->lang('select_pricing')];
         $rows = $this->getModuleRows() ?: [];
-        $html = $this->render('package_options', ['account_id' => count($rows) === 1 ? $rows[0]->id : null]);
+        $meta = (array)($vars->meta ?? []);
+        $currency = $this->packageCurrency();
+        $html = $this->render('package_options', ['account_id' => count($rows) === 1 ? $rows[0]->id : null,
+            'currency' => $currency]);
         try {
             // On initial module selection, Blesta renders the first account but does not yet send module_row.
             $selection = (object)(array)$vars;
@@ -106,15 +109,20 @@ class CpguardReseller extends Module
             }
             $row = $this->packageRow($selection);
             foreach ($this->availablePricing($row) as $id => $pricing) {
+                $current = (string)$id === (string)($meta['cpguard_pricing_id'] ?? '');
+                if ($pricing['currency'] !== $currency && !$current) { continue; }
                 $options[$id] = $pricing['package_name'] . ' — ' . $pricing['term'] . ' '
                     . $pricing['period'] . ' / ' . $pricing['price'] . ' ' . $pricing['currency']
-                    . ' (#' . $id . ')';
+                    . ' (#' . $id . ')'
+                    . ($pricing['currency'] !== $currency ? ' — ' . $this->lang('current_mapping') : '');
             }
         } catch (Exception $e) {
             $html = '<div class="alert alert-danger">' . $this->escape($e->getMessage()) . '</div>' . $html;
         }
+        if (count($options) === 1) {
+            $html = '<p>' . $this->escape(sprintf($this->lang('no_currency_packages'), $currency)) . '</p>' . $html;
+        }
         $fields->setHtml($html);
-        $meta = (array)($vars->meta ?? []);
         $label = $fields->label($this->lang('pricing'), 'cpguard_pricing_id');
         $label->attach($fields->fieldSelect('meta[cpguard_pricing_id]', $options,
             $meta['cpguard_pricing_id'] ?? '', ['id' => 'cpguard_pricing_id']));
@@ -458,6 +466,14 @@ class CpguardReseller extends Module
             throw new RuntimeException($this->lang('error.row'));
         }
         return $row;
+    }
+
+    private function packageCurrency()
+    {
+        Loader::loadModels($this, ['Companies']);
+        $setting = $this->Companies->getSetting(Configure::get('Blesta.company_id'), 'country');
+        $country = $setting->value ?? '';
+        return is_string($country) && strtoupper(trim($country)) === 'IN' ? 'INR' : 'USD';
     }
 
     private function availablePricing($row)
