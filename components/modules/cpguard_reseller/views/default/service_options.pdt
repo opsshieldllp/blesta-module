@@ -1,0 +1,14 @@
+<script>
+(function () {
+    // Preserve Blesta's stored account assignment without offering a local-only account change.
+    var field = document.getElementById('module_row_id');
+    if (!field) { return; }
+    var item = field.closest('li');
+    if (item) { item.style.setProperty('display', 'none', 'important'); }
+    var form = field.closest('form');
+    if (!form) { return; }
+    var editable = form.querySelectorAll('select:not(#module_row_id), textarea, input:not([type="hidden"]):not([type="submit"]):not([type="button"])');
+    var actions = form.querySelector('.button_row');
+    if (!editable.length && actions) { actions.style.display = 'none'; }
+})();
+</script>

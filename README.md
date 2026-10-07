@@ -58,18 +58,18 @@ Complete your OPSSHIELD account registration:
 {% endif %}
 
 Sign in to your cPGuard dashboard at https://app.opsshield.com/
-Installation instructions are available in the cPGuard License tab of your service.
+Installation instructions are available in the OPSSHIELD License tab of your service.
 ```
 
 Blesta sends the normal activation welcome email. The module does not send separate emails itself. Both documented `Invite_link` and actual WHMCS `invite_link` response spellings are handled. Staff can refresh an invitation from the service tab and resend the welcome email using Blesta's normal controls. An existing registered customer does not need an invitation.
 
 ## Manage licenses
 
-The **cPGuard License** tab is available to staff and clients. It displays the key, live upstream status, package, IP addresses, hostnames, upstream renewal date, installation/apply commands, dashboard link and available invitation.
+The **OPSSHIELD License** tab is available to staff and clients. It groups license details, reissue controls and OPSSHIELD account access into separate sections. cPGuard installation/apply commands are in the expandable **cPGuard Setup Instructions** section and apply only to that product. The service label uses **OPSSHIELD #ID**. **Basic Options** keeps the existing reseller account assignment without an account selector or recovery field.
 
 - **Suspend / Unsuspend:** use Blesta's normal service actions or automation. A false or mismatched API result prevents Blesta from treating the module action as successful.
 - **Cancel:** cancels the upstream license; it does not delete its history. An already canceled license can be canceled again safely. Cancel unneeded licenses before upstream renewal.
-- **Reissue License:** clears the server binding so the same key can bind to a different server. Available only on an active service with an active upstream license. `reissue: true` means the license is already waiting to bind; it is not an eligibility flag.
+- **Reissue License:** clears the server binding so the same key can bind to a different server. Available only on an active service with an active upstream license. The action asks for confirmation before clearing the binding. `reissue: true` means the license is already waiting to bind; the button remains visible but disabled with an explanation. Suspended licenses and unavailable connections also disable reissue.
 - **Package changes:** use Blesta's service/package change workflow with the module enabled. OPSSHIELD cancels the old license and creates a replacement. The module saves the new remote service ID/key and displays a notice instructing the customer to apply the new key. Add that instruction to your service-change email or notify the customer through your normal workflow. Changes across reseller accounts are blocked.
 - **Renewal:** Blesta handles retail invoicing. OPSSHIELD automatically renews active licenses using reseller credit. The module makes no remote purchase on Blesta renewal. Upstream and retail due dates are separate; check both, especially after imports or package changes. Prorated upstream credits/refunds are determined by OPSSHIELD.
 
@@ -83,10 +83,10 @@ If a purchase request times out or returns an incomplete response, it may alread
 
 1. Hold further provisioning attempts for that pending service while investigating.
 2. Check the reseller portal for the license and invoice created for this customer. Do not immediately repeat the purchase or package-change request.
-3. If a new license already exists for an unprovisioned pending service, open **Manage Service → Basic Options**, enter its remote ID in **Existing OPSSHIELD service ID**, and activate with **Use module** enabled. Blesta 5.10 displays the import field directly on the pending activation form. This links the existing active license without making another purchase. Where the service editor exposes **Recovery: existing OPSSHIELD service ID**, staff can also save the ID before activation.
+3. If a new license already exists for an unprovisioned pending service, open **Manage Service → Basic Options**, enter its remote ID in **Existing OPSSHIELD service ID**, and activate with **Use module** enabled. Blesta 5.10 displays the import field directly on the pending activation form. This links the existing active license without making another purchase.
 4. Recovery cannot replace an identity already attached to a provisioned service. If a package-change response was lost, reconcile the old/new upstream identities and local service fields before proceeding; do not repeat the destructive package change blindly.
 
-Only signed-in staff can enter an import or recovery ID. Automation can activate an already linked pending service using its saved identity. Client reissue actions use the service identity already stored by Blesta and ignore submitted service IDs. POST forms use Blesta's normal CSRF protection; the module does not disable it.
+Only signed-in staff can enter an existing license ID during service creation or pending activation. Automation can activate an already linked pending service using its saved identity. Client reissue actions use the service identity already stored by Blesta and ignore submitted service IDs. POST forms use Blesta's normal CSRF protection; the module does not disable it.
 
 ## Verification
 

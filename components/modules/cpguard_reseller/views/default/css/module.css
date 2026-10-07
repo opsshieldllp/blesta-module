@@ -77,3 +77,26 @@
 .cpguard-native-account .cpguard-remove summary { cursor: pointer; font-weight: 600; }
 .cpguard-native-account .cpguard-remove p { max-width: 620px; margin: 16px 0; }
 .cpguard-native-account .cpguard-remove form { margin: 0; }
+
+/* Native Blesta controls; only the license content layout is customized. */
+.cpguard-native-license { overflow-wrap: anywhere; }
+.cpguard-native-license > .pad, .cpguard-native-license > .title_row { clear: both; }
+.cpguard-native-license p { margin: 0 0 12px; }
+.cpguard-native-license dl { margin: 0; }
+.cpguard-native-license .pad dl dt { float: none; width: auto; padding: 0; margin: 0 0 6px; font-weight: 600; }
+.cpguard-native-license .pad dl dd { float: none; width: auto; padding: 0; margin: 0; }
+.cpguard-native-license .cpguard-license-key { margin-bottom: 20px; }
+.cpguard-native-license .cpguard-license-key code { font-size: 15px; user-select: all; }
+.cpguard-native-license .cpguard-license-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 24px; font-variant-numeric: tabular-nums; }
+.cpguard-native-license .pad::after { content: ''; display: block; clear: both; }
+.cpguard-native-license .cpguard-license-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.cpguard-native-license .cpguard-license-actions form { float: none; width: auto; margin: 0; }
+.cpguard-native-license .text-muted, .cpguard-native-license .cpguard-registration { margin-top: 12px; }
+.cpguard-native-license .cpguard-license-setup { border-top: 1px solid #ddd; padding: 16px; }
+.cpguard-native-license summary { cursor: pointer; font-weight: 600; }
+.cpguard-native-license .cpguard-license-setup[open] summary { margin-bottom: 16px; }
+.cpguard-native-license pre { white-space: pre-wrap; overflow-wrap: anywhere; }
+@media (max-width: 600px) {
+    .cpguard-native-license .cpguard-license-facts { grid-template-columns: 1fr; }
+    .cpguard-native-license .btn { max-width: 100%; white-space: normal; }
+}

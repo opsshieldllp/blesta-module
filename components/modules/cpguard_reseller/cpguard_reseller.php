@@ -15,7 +15,7 @@ class CpguardReseller extends Module
     public function getServiceName($service)
     {
         $fields = $this->serviceFieldsToObject($service->fields);
-        return empty($fields->cpguard_service_id) ? $this->lang('name') : 'cPGuard #' . $fields->cpguard_service_id;
+        return empty($fields->cpguard_service_id) ? $this->lang('name') : 'OPSSHIELD #' . $fields->cpguard_service_id;
     }
     public function getPackageServiceName($package, ?array $vars = null)
     {
@@ -178,10 +178,7 @@ class CpguardReseller extends Module
     public function getAdminEditFields($package, $vars = null)
     {
         $fields = new ModuleFields();
-        $label = $fields->label($this->lang('recovery_id'), 'cpguard_recovery_service_id');
-        $label->attach($fields->fieldText('cpguard_recovery_service_id', '', ['id' => 'cpguard_recovery_service_id']));
-        $label->attach($fields->tooltip($this->lang('recovery_help')));
-        $fields->setField($label);
+        $fields->setHtml($this->render('service_options', []));
         return $fields;
     }
 
@@ -253,27 +250,12 @@ class CpguardReseller extends Module
         $parent_package = null, $parent_service = null)
     {
         try {
-            $row = $this->serviceRow($service);
+            $this->serviceRow($service);
             if (!$this->validateService($package, $vars ?? [])) { return; }
             if (isset($vars['module_row_id']) && (string)$vars['module_row_id'] !== (string)$service->module_row_id) {
                 throw new RuntimeException($this->lang('error.row_change'));
             }
             $existing = $this->serviceFieldsToObject($service->fields);
-            if (!empty($vars['cpguard_recovery_service_id'])) {
-                if (!$this->staffAccess()) {
-                    throw new RuntimeException($this->lang('error.staff_import'));
-                }
-                if (!empty($existing->cpguard_service_id)
-                    || !in_array($service->status, ['pending', 'in_review'], true)) {
-                    throw new RuntimeException($this->lang('error.recovery'));
-                }
-                $license = $this->license($row, $vars['cpguard_recovery_service_id']);
-                if ((string)$license['pricing_id'] !== (string)$package->meta->cpguard_pricing_id
-                    || $license['status'] !== 'active') {
-                    throw new RuntimeException($this->lang('error.import'));
-                }
-                return $this->licenseFields($license, $this->clientEmail($service->client_id), $row->id);
-            }
             // License identity and buyer email are immutable here. A package change uses changeServicePackage.
             return $this->fields((array)$existing);
         } catch (Exception $e) {

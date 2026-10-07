@@ -11,7 +11,7 @@ version = json.loads((root / module / "config.json").read_text())["version"]
 files = [
     "cpguard_reseller.php", "config.json", "lib/cpguard_reseller_api.php",
     "language/en_us/cpguard_reseller.php", "views/default/account.pdt",
-    "views/default/manage.pdt", "views/default/package_options.pdt", "views/default/license.pdt", "views/default/service_info.pdt",
+    "views/default/manage.pdt", "views/default/package_options.pdt", "views/default/service_options.pdt", "views/default/license.pdt", "views/default/service_info.pdt",
     "views/default/css/module.css", "views/default/images/logo.svg",
 ]
 dist = root / "dist"

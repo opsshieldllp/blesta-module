@@ -312,13 +312,17 @@ $module = makeModule($default);
 $pendingService = clone $service;
 $pendingService->status = 'pending';
 $pendingService->fields = stored($pending);
-$recovered = $module->editService($package, $pendingService, ['cpguard_recovery_service_id' => '501224']);
-check(values($recovered)['cpguard_service_id'] === '501224' && count($module->calls) === 1, 'Uncertain pending provisioning can be reconciled without purchase');
-check($module->editService($package, $service, ['cpguard_recovery_service_id' => '501225']) === null, 'Recovery cannot replace an existing license');
+check(values($module->editService($package, $pendingService, ['cpguard_recovery_service_id' => '501224'])) === values($pending)
+    && count($module->calls) === 0, 'Removed recovery input cannot link a license through service editing');
+check(values($module->editService($package, $service, ['cpguard_recovery_service_id' => '501225']))['cpguard_service_id'] === '501224',
+    'Service editing cannot replace an existing license');
+$recovered = $module->addService($package, ['client_id' => 10, 'use_module' => 'true', 'cpguard_service_id' => '501224']);
+check(values($recovered)['cpguard_service_id'] === '501224' && count($module->calls) === 1, 'Staff can still link an existing license during activation without purchase');
 $module = makeModule($default);
 $module->isStaff = false;
 check($module->addService($package, ['client_id' => 10, 'use_module' => 'true', 'cpguard_service_id' => '501224']) === null && count($module->calls) === 0, 'Client cannot import another license by posting a remote ID');
-check($module->editService($package, $pendingService, ['cpguard_recovery_service_id' => '501224']) === null && count($module->calls) === 0, 'Client cannot use staff recovery linking');
+check(values($module->editService($package, $pendingService, ['cpguard_recovery_service_id' => '501224'])) === values($pending)
+    && count($module->calls) === 0, 'Client cannot use removed recovery linking');
 $module = makeModule($default);
 $module->isStaff = false;
 $module->Services = new TestModels();
@@ -343,6 +347,32 @@ check(count($module->calls) === 1, 'GET cannot trigger reissue');
 $module->calls = [];
 $module->tabClientLicense($package, $service, [], ['cpguard_action' => 'reissue', 'service_id' => '999']);
 check($module->calls[1][2]['service_id'] === '501224', 'Reissue ignores submitted service ID');
+$module = makeModule(function ($action, $data) use ($default, $remote) {
+    return $action === 'getlicense' ? array_merge($remote, ['reissue' => true]) : $default($action, $data);
+});
+$html = $module->tabLicense($package, $service);
+check(strpos($html, 'disabled aria-describedby="cpguard-reissue-state"') !== false
+    && strpos($html, 'ready to bind') !== false, 'Already unbound license keeps a disabled reissue control with an explanation');
+$module->calls = [];
+$module->tabLicense($package, $service, [], ['cpguard_action' => 'reissue']);
+check(count($module->calls) === 1 && $module->Input->errors(), 'Already unbound license cannot be reissued through a forged POST');
+$module = makeModule(function ($action, $data) use ($default, $remote) {
+    return $action === 'getlicense' ? array_merge($remote, ['status' => 'suspended']) : $default($action, $data);
+});
+$html = $module->tabLicense($package, $service, [], ['cpguard_action' => 'reissue']);
+check(count($module->calls) === 1 && $module->Input->errors()
+    && strpos($html, 'disabled aria-describedby="cpguard-reissue-state"') !== false, 'Suspended license cannot be reissued');
+$module = makeModule(function ($action, $data) use ($default) {
+    return $action === 'reissuelicense' ? ['status' => false, 'service_id' => '501224'] : $default($action, $data);
+});
+$html = $module->tabLicense($package, $service, [], ['cpguard_action' => 'reissue']);
+check($module->Input->errors() && strpos($html, 'License reissued.') === false, 'Failed remote reissue never displays success');
+$module = makeModule($default);
+check($module->getAdminTabs($package)['tabLicense'] === 'OPSSHIELD License'
+    && $module->getClientTabs($package)['tabClientLicense'] === 'OPSSHIELD License', 'Staff and client tabs use general OPSSHIELD branding');
+check(strpos($module->getAdminEditFields($package)->html, 'cpguard_recovery_service_id') === false, 'Manage Service does not render a recovery input');
+check($module->editService($package, $service, ['module_row_id' => 2]) === null
+    && count($module->calls) === 0, 'Account changes remain blocked even when posted without the selector');
 $module = makeModule(function ($action, $data) use ($default, $remote) {
     return $action === 'getlicense' ? array_merge($remote, ['license_key' => '<script>alert(1)</script>']) : $default($action, $data);
 });
@@ -380,7 +410,7 @@ $loggerFailure = new LoggingFailureModule();
 check(isset($loggerFailure->runRequest($module->rows[1])['services']), 'Logging failure cannot discard successful API result');
 // Regression checks for the public-release security review.
 $module = makeModule($default);
-check($module->getServiceName($service) === 'cPGuard #501224', 'Service labels do not expose a license key or email');
+check($module->getServiceName($service) === 'OPSSHIELD #501224', 'General service labels do not expose a license key or email');
 $vars = ['account_name' => ['invalid'], 'api_key' => 'fixture-key'];
 check($module->editModuleRow($module->rows[1], $vars) === null, 'Array account name fails validation without a PHP warning');
 $vars = ['account_name' => 'Test', 'api_key' => ['invalid']];
