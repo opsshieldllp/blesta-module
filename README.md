@@ -17,7 +17,7 @@ Requires PHP 7.4 or newer, PHP cURL, a working certificate trust store, and outb
 
 1. Open **Packages → Create Package**. Select **cPGuard Reseller** as the module.
 2. The configured reseller account is assigned automatically; no account or group selection is required.
-3. Select **OPSSHIELD reseller package**. Each option shows the upstream package, monthly wholesale price, currency and pricing ID. The company country under **Settings → Company → General → Localization** controls the available currency: India (`IN`) shows INR; other or unset countries show USD. Reload the package form after changing this setting. An existing mapping in another currency remains visible as **Current mapping**; the module never automatically converts or remaps it. Retail/customer currencies do not control this filter.
+3. Select **OPSSHIELD reseller package**. Each option shows the upstream package, monthly wholesale price, currency and pricing ID. The currency shown depends on your company's **Default Country**, as explained below.
 4. Configure your own retail prices and billing periods. Monthly, yearly, or multiple retail periods can use the same monthly OPSSHIELD reseller package. Blesta customer billing and OPSSHIELD monthly renewal are independent.
 5. Set service quantity to one and disable quantity changes. Create a separate Blesta service for each license.
 6. Configure the package welcome email, package groups/order form, and Blesta payment/provisioning automation normally. Provision only after payment or staff approval as appropriate.
@@ -25,6 +25,19 @@ Requires PHP 7.4 or newer, PHP cURL, a working certificate trust store, and outb
 **Suspension and cancellation must reach OPSSHIELD.** Keep **Use module** enabled when performing these actions in Blesta. The module sends suspend, unsuspend and cancel requests upstream and reports API failures to Blesta. A local-only status change does not stop OPSSHIELD billing. Scheduled cancellation takes effect when Blesta executes it; until then an active upstream license can continue renewing from reseller credit.
 
 Package setup and provisioning both check upstream pricing availability. This avoids choosing the first pricing entry with a matching currency and accidentally ordering the wrong term.
+
+### Why reseller packages show INR or USD
+
+The module uses **Settings → Company → General → Localization → Default Country** to show reseller pricing in the currency intended for your company's region:
+
+- **India (`IN`):** shows INR reseller packages.
+- **Any other country, or no country set:** shows USD reseller packages.
+
+If the dropdown shows an unexpected currency, open that setting, select the correct country for your company, save, and reload the package creation or editing page. The filter uses this saved company setting; it does not detect ownership or location from the server, IP address, or customer's country. Your retail prices and customer currencies do not control it and may differ from the reseller currency.
+
+Only matching prices returned by OPSSHIELD for your reseller account are offered. If none are available, the form reports that no reseller packages are available in that currency; it does not convert prices or fall back to another currency. Check with OPSSHIELD that your reseller account has packages in the expected currency.
+
+An existing package mapping in another currency remains visible as **Current mapping**, provided it is still returned by OPSSHIELD. Changing **Default Country** does not automatically remap existing packages or convert their prices.
 
 ## Welcome email
 
